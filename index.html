@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quiz Amalfi</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
+    .hidden { display: none; }
+    button { margin-top: 10px; padding: 8px 15px; }
+    .resultado { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    ul { padding-left: 20px; }
+    img.logo {
+      display: block;
+      max-width: 250px;
+      margin: 0 auto 20px auto;
+    }
+  </style>
+</head>
+<body>
+  <img src="logo.png.png" alt="Logo Amalfi" class="logo" />
+  <h1>Quiz Amalfi</h1>
+
+  <div id="inputNome">
+    <label>Digite seu nome: <input type="text" id="nomeJogador" /></label>
+    <button onclick="iniciarQuiz()">Começar</button>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <div id="pergunta"></div>
+    <div id="respostas"></div>
+    <button id="btnProximo" onclick="proximaPergunta()" disabled>Próxima</button>
+  </div>
+
+  <div id="resultadoFinal" class="hidden">
+    <h2>Resultado final</h2>
+    <p id="msgResultado"></p>
+    <button onclick="reiniciar()">Jogar novamente</button>
+
+    <div class="resultado">
+      <h3>Ranking dos jogadores:</h3>
+      <ul id="listaJogadores"></ul>
+    </div>
+  </div>
+
+<script>
+  const perguntas = [
+    {
+      pergunta: "Quantos anos tem a Amalfi?",
+      respostas: [
+        { texto: "Mais de 10", correta: true },
+        { texto: "Mais de 15", correta: false },
+        { texto: "Mais de 20", correta: false },
+      ],
+    },
+    {
+      pergunta: "Quantos empreendimentos a Amalfi tem entregues?",
+      respostas: [
+        { texto: "4", correta: false },
+        { texto: "5", correta: true },
+        { texto: "6", correta: false },
+      ],
+    },
+    {
+      pergunta: "Quantos empreendimentos a Amalfi tem em construção?",
+      respostas: [
+        { texto: "4", correta: false },
+        { texto: "3", correta: true },
+        { texto: "5", correta: false },
+      ],
+    },
+    {
+      pergunta: "EM QUAIS CIDADES A AMALFI JÁ ESTÁ PRESENTE?",
+      respostas: [
+        { texto: "Itapema e Itajaí", correta: false },
+        { texto: "Itajaí e Navegantes", correta: true },
+        { texto: "Itajaí e balneário", correta: false },
+      ],
+    },
+  ];
+
+  let jogadorAtual = "";
+  let pontuacao = 0;
+  let perguntaAtual = 0;
+  const jogadores = [];
+
+  const inputNomeDiv = document.getElementById("inputNome");
+  const quizDiv = document.getElementById("quiz");
+  const perguntaDiv = document.getElementById("pergunta");
+  const respostasDiv = document.getElementById("respostas");
+  const btnProximo = document.getElementById("btnProximo");
+  const resultadoFinalDiv = document.getElementById("resultadoFinal");
+  const msgResultado = document.getElementById("msgResultado");
+  const listaJogadores = document.getElementById("listaJogadores");
+
+  function iniciarQuiz() {
+    const nome = document.getElementById("nomeJogador").value.trim();
+    if (nome === "") {
+      alert("Por favor, digite seu nome para começar.");
+      return;
+    }
+    jogadorAtual = nome;
+    pontuacao = 0;
+    perguntaAtual = 0;
+
+    inputNomeDiv.classList.add("hidden");
+    quizDiv.classList.remove("hidden");
+    resultadoFinalDiv.classList.add("hidden");
+
+    mostrarPergunta();
+  }
+
+  function mostrarPergunta() {
+    btnProximo.disabled = true;
+    const p = perguntas[perguntaAtual];
+    perguntaDiv.textContent = p.pergunta;
+    respostasDiv.innerHTML = "";
+
+    p.respostas.forEach((resposta, index) => {
+      const label = document.createElement("label");
+      label.style.display = "block";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "resposta";
+      input.value = index;
+      input.onclick = () => {
+        btnProximo.disabled = false;
+      };
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(" " + resposta.texto));
+      respostasDiv.appendChild(label);
+    });
+  }
+
+  function proximaPergunta() {
+    const selecionado = document.querySelector('input[name="resposta"]:checked');
+    if (!selecionado) {
+      alert("Selecione uma resposta para continuar.");
+      return;
+    }
+    const respostaIndex = parseInt(selecionado.value);
+    if (perguntas[perguntaAtual].respostas[respostaIndex].correta) {
+      pontuacao++;
+    }
+    perguntaAtual++;
+
+    if (perguntaAtual < perguntas.length) {
+      mostrarPergunta();
+    } else {
+      finalizarQuiz();
+    }
+  }
+
+  function finalizarQuiz() {
+    quizDiv.classList.add("hidden");
+    resultadoFinalDiv.classList.remove("hidden");
+
+    jogadores.push({ nome: jogadorAtual, pontos: pontuacao });
+    mostrarRanking();
+
+    msgResultado.textContent = `${jogadorAtual}, sua pontuação foi ${pontuacao} de ${perguntas.length}.`;
+  }
+
+  function mostrarRanking() {
+    listaJogadores.innerHTML = "";
+    jogadores.forEach(jogador => {
+      const li = document.createElement("li");
+      li.textContent = `${jogador.nome}: ${jogador.pontos} pontos`;
+      listaJogadores.appendChild(li);
+    });
+  }
+
+  function reiniciar() {
+    document.getElementById("nomeJogador").value = "";
+    inputNomeDiv.classList.remove("hidden");
+    quizDiv.classList.add("hidden");
+    resultadoFinalDiv.classList.add("hidden");
+  }
+</script>
+</body>
+</html>
